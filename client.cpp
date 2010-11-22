@@ -1,14 +1,45 @@
-//Multimediale Netzwerke und IT Sicherheit
-//UE1-Client
-//Wolfgang Vogl
+#include "client.h"					
 
-#include <WinSock2.h>
-#include <stdio.h>
 
-#define BUFFER_SIZE 139														
+client::client()
+{
 
-int startWinsock();						
+}
 
+client::~client()
+{
+
+}
+
+void client::run(){
+
+#ifdef WIN32
+	startWinSock();
+#endif
+
+	clientSocket = socket( AF_INET, SOCK_STREAM, 0 );
+
+	if(clientSocket == INVALID_SOCKET){
+        error("Socket U fail");
+        exit(1);
+    }
+
+	memset(&addr, 0, sizeof(SOCKADDR_IN));										//memset sets a block of memory starting by &addr to the value 0 length of SOCKADDR_IN
+	addr.sin_family=AF_INET;												//IPv4
+	addr.sin_port=htons(5000);												// Port 5000 in use
+	addr.sin_addr.s_addr=inet_addr("127.0.0.1");							// localhost
+
+	connection();
+
+	login();
+
+	do{
+		conversation();
+	}while(1);
+
+}
+
+/*
 int main(){
 
 	long rc;
@@ -78,9 +109,59 @@ int main(){
 	}
 	  return 0;
 	}
+*/
 
-int startWinsock()									//starts Winsock version 2.0, WSADATA is a struct containing info about win socket implementation
+
+
+
+void client::startWinSock()									//starts Winsock version 2.0, WSADATA is a struct containing info about win socket implementation
 {
-	WSADATA wsa;
-	return WSAStartup(MAKEWORD(2,0),&wsa);
+#ifdef WIN32
+	WORD wVersionRequested = MAKEWORD(2,2);
+	WSADATA wsaData;
+	if(WSAStartup(wVersionRequested, &wsaData)!=0){
+        printf("WinSocket not available");
+        exit(1);
+	}
+#endif
+}
+
+void client::error(char* string){
+	#ifndef WIN32
+		cout << endl << perror(string) << endl;
+	#else 
+		cout << endl << string << " " << WSAGetLastError() << endl;
+	#endif
+}
+
+void client::connection(){
+	int rc;											
+	rc = connect(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));						
+
+	if(rc==SOCKET_ERROR)
+	{
+		error("Connect failed");
+		exit(1);
+	}
+	else
+	{
+		cout<<"Connected...\n";
+	}	
+}
+
+void client::login(){
+	int rc;
+	cout<<"Geben Sie Ihren Usernamen ein:\n";
+	cin>>sendBuffer;
+	rc = send(clientSocket, sendBuffer, strlen(sendBuffer), 0);
+	
+}	
+
+void client::closeClient(){
+	closesocket(clientSocket);
+	exit(0);
+}
+
+void client::conversation(){
+
 }
