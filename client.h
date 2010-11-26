@@ -1,8 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#define RECEIVE_BUFFER_SIZE 300
-#define SEND_BUFFER_SIZE 300
+#define BUFFER_SIZE 300
 #define WIN32 
 #define PORT 5000
 
@@ -16,8 +15,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <string.h>
 #endif
+#include <string.h>
 #include <iostream>
 
 //#include "message.h"
@@ -35,7 +34,7 @@ class client
         void closeClient();
 		void login();
 		void receive();
-		void sending(char *sendBuf);
+		void sending(char* sendBuf);
         void run();
         void startWinSock();
         void error(char* string);
@@ -47,8 +46,8 @@ class client
        
         int clientSocket;
 		bool closeConnection;
-		char receiveBuffer[RECEIVE_BUFFER_SIZE];
-		char sendBuffer[SEND_BUFFER_SIZE];
+		char receiveBuffer[BUFFER_SIZE];
+		char sendBuffer[BUFFER_SIZE];
 };
 
 #endif 

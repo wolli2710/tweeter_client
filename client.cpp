@@ -33,7 +33,8 @@ void client::run(){
 	receive();
 	login();
 	receive();
-	
+    sending("f andiasdfasdfsd");
+    receive();
 
 	do{
 		conversation();
@@ -113,10 +114,9 @@ int main(){
 	}
 */
 
-
-
-
-void client::startWinSock()									//starts Winsock version 2.0, WSADATA is a struct containing info about win socket implementation
+//starts Winsock version 2.0, WSADATA is a 
+//struct containing info about win socket implementation
+void client::startWinSock()									
 {
 #ifdef WIN32
 	WORD wVersionRequested = MAKEWORD(2,2);
@@ -173,18 +173,17 @@ void client::conversation(){
 void client::receive(){
 	int bytes;
 	bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
-	cout << bytes << endl;
 	receiveBuffer[bytes] = '\0';	
 	cout<<receiveBuffer<<"\n";	
 }
 
-void client::sending(char *sendBuf){
+void client::sending(char* sendBuf){
 	int rc;
-	rc = send(clientSocket, sendBuf, strlen(sendBuf), 0);
+    rc = send(clientSocket, sendBuf, sizeof(sendBuf), 0);
 	if(rc==SOCKET_ERROR){
 		error("Sending failed");
 	}
 	else{
-		cout<<sendBuf<<" (gesendet)\n";
+        cout << sendBuf << " (gesendet)\n";
 	}
 }
