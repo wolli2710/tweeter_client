@@ -24,14 +24,16 @@ void client::run(){
         exit(1);
     }
 
-	memset(&addr, 0, sizeof(SOCKADDR_IN));										//memset sets a block of memory starting by &addr to the value 0 length of SOCKADDR_IN
-	addr.sin_family=AF_INET;												//IPv4
-	addr.sin_port=htons(5000);												// Port 5000 in use
-	addr.sin_addr.s_addr=inet_addr("127.0.0.1");							// localhost
+	memset(&addr, 0, sizeof(SOCKADDR_IN));										
+	addr.sin_family=AF_INET;												
+	addr.sin_port=htons(5000);												
+	addr.sin_addr.s_addr=inet_addr("127.0.0.1");							
 
 	connection();
-
+	receive();
 	login();
+	receive();
+	
 
 	do{
 		conversation();
@@ -153,8 +155,10 @@ void client::login(){
 	int rc;
 	cout<<"Geben Sie Ihren Usernamen ein:\n";
 	cin>>sendBuffer;
-	rc = send(clientSocket, sendBuffer, strlen(sendBuffer), 0);
-	
+	rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
+	if(rc==SOCKET_ERROR){
+		error("login failed\n");
+	}	
 }	
 
 void client::closeClient(){
@@ -164,4 +168,23 @@ void client::closeClient(){
 
 void client::conversation(){
 
+}
+
+void client::receive(){
+	int bytes;
+	bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
+	cout << bytes << endl;
+	receiveBuffer[bytes] = '\0';	
+	cout<<receiveBuffer<<"\n";	
+}
+
+void client::sending(char *sendBuf){
+	int rc;
+	rc = send(clientSocket, sendBuf, strlen(sendBuf), 0);
+	if(rc==SOCKET_ERROR){
+		error("Sending failed");
+	}
+	else{
+		cout<<sendBuf<<" (gesendet)\n";
+	}
 }

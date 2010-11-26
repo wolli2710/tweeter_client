@@ -1,7 +1,7 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#define RECEIVE_BUFFER_SIZE 140
+#define RECEIVE_BUFFER_SIZE 300
 #define SEND_BUFFER_SIZE 300
 #define WIN32 
 #define PORT 5000
@@ -34,6 +34,8 @@ class client
 		void conversation();
         void closeClient();
 		void login();
+		void receive();
+		void sending(char *sendBuf);
         void run();
         void startWinSock();
         void error(char* string);
