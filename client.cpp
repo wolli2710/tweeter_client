@@ -30,16 +30,21 @@ void client::run(){
 	addr.sin_addr.s_addr=inet_addr("127.0.0.1");							
 
 	connection();
-	receive();
+	//receive right connected
+	int rc;
+	t=0;
+	rc=pthread_create(&threads[t],NULL, &client::receive, (void*)t);
+	//login
 	login();
-	receive();
-    sending("f andiasdfasdfsd");
-    receive();
+	//User
+	//receive();
+   
 
 	do{
 		conversation();
 	}while(1);
 
+pthread_exit(NULL);
 }
 
 /*
@@ -167,14 +172,19 @@ void client::closeClient(){
 }
 
 void client::conversation(){
-
+	//sending();
+	//receive();
 }
 
-void client::receive(){
+void client::receive(void *threadid){
+	long tid;
+	tid = (long)threadid;
+
 	int bytes;
 	bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
 	receiveBuffer[bytes] = '\0';	
 	cout<<receiveBuffer<<"\n";	
+	pthread_exit(NULL);
 }
 
 void client::sending(char* sendBuf){

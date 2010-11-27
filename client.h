@@ -4,6 +4,8 @@
 #define BUFFER_SIZE 300
 #define WIN32 
 #define PORT 5000
+#define NUM_THREADS     5
+
 
 #ifdef WIN32
 #include <winsock2.h>
@@ -16,6 +18,8 @@
 #include <stdlib.h>
 #include <errno.h>
 #endif
+#pragma comment(lib, "pthreadVC1.lib")
+#include <pthread.h>
 #include <string.h>
 #include <iostream>
 
@@ -33,7 +37,7 @@ class client
 		void conversation();
         void closeClient();
 		void login();
-		void receive();
+		void receive(void *threadid);
 		void sending(char* sendBuf);
         void run();
         void startWinSock();
@@ -43,11 +47,14 @@ class client
     private:
       
         SOCKADDR_IN addr;
-       
+		long t;
         int clientSocket;
 		bool closeConnection;
 		char receiveBuffer[BUFFER_SIZE];
 		char sendBuffer[BUFFER_SIZE];
+
+		pthread_t threads[NUM_THREADS];
+
 };
 
 #endif 
