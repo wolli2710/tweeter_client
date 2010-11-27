@@ -1,9 +1,10 @@
 #include "client.h"					
 
 
+void *handleThread(void *arg);
+
 client::client()
 {
-
 }
 
 client::~client()
@@ -33,7 +34,7 @@ void client::run(){
 	//receive right connected
 	int rc;
 	t=0;
-	rc=pthread_create(&threads[t],NULL, &client::receive, (void*)t);
+	rc=pthread_create(&threads[t],NULL, &handleThread, (void*)t);
 	//login
 	login();
 	//User
@@ -176,9 +177,9 @@ void client::conversation(){
 	//receive();
 }
 
-void client::receive(void *threadid){
-	long tid;
-	tid = (long)threadid;
+void client::receive(){
+	//long tid;
+	//tid = (long)threadid;
 
 	int bytes;
 	bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
@@ -196,4 +197,13 @@ void client::sending(char* sendBuf){
 	else{
         cout << sendBuf << " (gesendet)\n";
 	}
+}
+
+void *handleThread(void *arg){
+
+	//while oder ähnliches
+	static_cast<client*>(arg)->receive();
+
+
+	return (NULL);
 }

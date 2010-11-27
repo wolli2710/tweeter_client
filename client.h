@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #endif
-#pragma comment(lib, "pthreadVC1.lib")
+#pragma comment(lib, "pthreadVC2.lib")
 #include <pthread.h>
 #include <string.h>
 #include <iostream>
@@ -37,7 +37,7 @@ class client
 		void conversation();
         void closeClient();
 		void login();
-		void receive(void *threadid);
+		void receive();
 		void sending(char* sendBuf);
         void run();
         void startWinSock();
@@ -56,5 +56,7 @@ class client
 		pthread_t threads[NUM_THREADS];
 
 };
+
+void *thread(void* arg);
 
 #endif 
