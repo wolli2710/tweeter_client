@@ -33,27 +33,27 @@ class client
     public:
         client();
         virtual ~client();
-		void connection();
-		void conversation();
+        void connection();
+        void conversation();
         void closeClient();
-		void login();
-		void receive();
-		void sending(char* sendBuf);
+        void login();
+        void receive();
+        void sending(char* sendBuf);
         void run();
         void startWinSock();
         void error(char* string);
-	
+    
     protected:
     private:
       
         SOCKADDR_IN addr;
-		long t;
+        long t;
         int clientSocket;
-		bool closeConnection;
-		char receiveBuffer[BUFFER_SIZE];
-		char sendBuffer[BUFFER_SIZE];
+        bool closeConnection;
+        char receiveBuffer[BUFFER_SIZE];
+        char sendBuffer[BUFFER_SIZE];
 
-		pthread_t threads[NUM_THREADS];
+        pthread_t threads[NUM_THREADS];
 
 };
 
