@@ -1,6 +1,5 @@
 #include "client.h"					
 
-
 void *handleThread(void *arg);
 
 client::client()
@@ -10,8 +9,7 @@ client::client()
 client::~client()
 {
 
-}
-
+}   
 void client::run(){
 
 #ifdef WIN32
@@ -37,14 +35,109 @@ void client::run(){
     //login
     login();
     //User
-	receive();
-	sending("testfd");
+    sending("testfd");
+    //receive();
+    sending("f andi");
+    receive();
     //rc=pthread_create(&threads[t],NULL, &handleThread, (void*)this);
     do{
         conversation();
     }while(1);
 
 //pthread_exit(NULL);
+}
+
+//starts Winsock version 2.0, WSADATA is a 
+//struct containing info about win socket implementation
+void client::startWinSock()									
+{
+#ifdef WIN32
+    WORD wVersionRequested = MAKEWORD(2,2);
+    WSADATA wsaData;
+    if(WSAStartup(wVersionRequested, &wsaData)!=0){
+        printf("WinSocket not available");
+        exit(1);
+    }
+#endif
+}
+
+void client::error(char* string){
+    #ifndef WIN32
+        cout << endl << perror(string) << endl;
+    #else 
+        cout << endl << string << " " << WSAGetLastError() << endl;
+    #endif
+}
+
+void client::connection(){
+    int rc;											
+    rc = connect(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));						
+
+    if(rc==SOCKET_ERROR)
+    {
+        error("Connect failed");
+        exit(1);
+    }
+    else
+    {
+        cout<<"Connected...\n";
+    }	
+}
+
+void client::login(){
+    int rc;
+    do{
+        cout<<"Geben Sie Ihren Usernamen ein:\n";
+        cin>>sendBuffer;
+        rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
+        if(rc==SOCKET_ERROR){
+            error("login failed\n");
+        }
+        receive();
+    }while(strcmp(receiveBuffer,"Already logged in")==0);
+}	
+
+void client::closeClient(){
+    closesocket(clientSocket);
+    exit(0);
+}
+
+void client::conversation(){
+    //sending();
+    //receive();
+}
+
+void client::receive(){
+    //long tid;
+    //tid = (long)threadid;
+    int bytes;
+    bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
+    receiveBuffer[bytes] = '\0';	
+    cout<<receiveBuffer<<"\n";	
+}
+
+void client::sending(char* sendBuf){
+    int rc;
+    //cout << strlen(sendBuf) << endl; 
+    memcpy(sendBuffer, sendBuf, strlen(sendBuf));
+    sendBuffer[strlen(sendBuf)] = '\0';
+    rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
+    if(rc==SOCKET_ERROR){
+        error("Sending failed");
+    }
+    else{
+        cout << sendBuf << " (gesendet)\n";
+    }
+}
+
+void *handleThread(void *arg){
+    //while oder ähnliches
+    client* test = static_cast<client*>(arg);
+    free(arg);
+    while(true){
+        test->receive();
+    }
+    return (NULL);
 }
 
 /*
@@ -118,95 +211,3 @@ int main(){
       return 0;
     }
 */
-
-//starts Winsock version 2.0, WSADATA is a 
-//struct containing info about win socket implementation
-void client::startWinSock()									
-{
-#ifdef WIN32
-    WORD wVersionRequested = MAKEWORD(2,2);
-    WSADATA wsaData;
-    if(WSAStartup(wVersionRequested, &wsaData)!=0){
-        printf("WinSocket not available");
-        exit(1);
-    }
-#endif
-}
-
-void client::error(char* string){
-    #ifndef WIN32
-        cout << endl << perror(string) << endl;
-    #else 
-        cout << endl << string << " " << WSAGetLastError() << endl;
-    #endif
-}
-
-void client::connection(){
-    int rc;											
-    rc = connect(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));						
-
-    if(rc==SOCKET_ERROR)
-    {
-        error("Connect failed");
-        exit(1);
-    }
-    else
-    {
-        cout<<"Connected...\n";
-    }	
-}
-
-void client::login(){
-    int rc;
-    cout<<"Geben Sie Ihren Usernamen ein:\n";
-    cin>>sendBuffer;
-    rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
-    if(rc==SOCKET_ERROR){
-        error("login failed\n");
-    }	
-}	
-
-void client::closeClient(){
-    closesocket(clientSocket);
-    exit(0);
-}
-
-void client::conversation(){
-    //sending();
-    //receive();
-}
-
-void client::receive(){
-    //long tid;
-    //tid = (long)threadid;
-    int bytes;
-    bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
-    receiveBuffer[bytes] = '\0';	
-    cout<<receiveBuffer<<"\n";	
-}
-
-void client::sending(char* sendBuf){
-    int rc;
-	//cout << strlen(sendBuf) << endl; 
-	memcpy(sendBuffer, sendBuf, strlen(sendBuf));
-	sendBuffer[strlen(sendBuf)] = '\0';
-    rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
-    if(rc==SOCKET_ERROR){
-        error("Sending failed");
-    }
-    else{
-        cout << sendBuf << " (gesendet)\n";
-    }
-}
-
-void *handleThread(void *arg){
-
-    //while oder ähnliches
-	client* test = static_cast<client*>(arg);
-	free(arg);
-	while(true){
-		test->receive();
-	}
-
-    return (NULL);
-}
