@@ -42,6 +42,8 @@ class client
         void run();
         void startWinSock();
         void error(char* string);
+		
+		static void* handleThread(void *arg);
     
     protected:
     private:
@@ -53,10 +55,11 @@ class client
         char receiveBuffer[BUFFER_SIZE];
         char sendBuffer[BUFFER_SIZE];
 
-        pthread_t threads[NUM_THREADS];
+       // pthread_t threads[NUM_THREADS];
+		
 
 };
 
-void *thread(void* arg);
+//void *thread(void* arg);
 
 #endif 
