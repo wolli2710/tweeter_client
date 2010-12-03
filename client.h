@@ -6,7 +6,7 @@
 #define PORT 5000
 #define NUM_THREADS     5
 
-
+/*
 #ifdef WIN32
 #include <winsock2.h>
 #pragma comment(lib, "ws2_32.lib")
@@ -18,10 +18,11 @@
 #include <stdlib.h>
 #include <errno.h>
 #endif
-#pragma comment(lib, "pthreadVC2.lib")
 #include <pthread.h>
+#pragma comment(lib, "pthreadVC2.lib")
 #include <string.h>
-#include <iostream>
+#include <iostream>*/
+#include "includes.h"
 
 //#include "message.h"
 //#include "timestamp.h"
@@ -33,18 +34,17 @@ class client
     public:
         client();
         virtual ~client();
-        void connection();
+        void connection(int port, const char* address);
         void conversation();
         void closeClient();
         void login();
-        void receive();
-        void sending(char* sendBuf);
+        const char* receive();
+        void sending(const char* sendBuf);
         void run();
         void startWinSock();
         void error(char* string);
-		
-		static void* handleThread(void *arg);
-    
+        
+        static void* handleThread(void *arg);    
     protected:
     private:
       
@@ -56,7 +56,7 @@ class client
         char sendBuffer[BUFFER_SIZE];
 
        // pthread_t threads[NUM_THREADS];
-		
+        
 
 };
 

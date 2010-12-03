@@ -1,6 +1,5 @@
 #include "client.h"					
 
-//void* client::handleThread(void *arg);
 
 client::client()
 {
@@ -23,27 +22,6 @@ void client::run(){
         exit(1);
     }
 
-    memset(&addr, 0, sizeof(SOCKADDR_IN));										
-    addr.sin_family=AF_INET;												
-    addr.sin_port=htons(5000);												
-    addr.sin_addr.s_addr=inet_addr("127.0.0.1");							
-
-    connection();
-    //receive right connected
-
-    receive();
-    //user can login, if no one else uses the same name
-    login();
-       
-	   
-
-	//conversation uses the methods sending and receive to handle 
-	//userinput and gets massages from the server
-    do{
-        conversation();
-    }while(1);
-
-//pthread_exit(NULL);
 }
 
 //starts Winsock version 2.0, WSADATA is a 
@@ -69,30 +47,35 @@ void client::error(char* string){
     #endif
 }
 
-void client::connection(){
+void client::connection(int port, const char* address){
+    memset(&addr, 0, sizeof(SOCKADDR_IN));										
+    addr.sin_family=AF_INET;												
+    addr.sin_port=htons(port);												
+    addr.sin_addr.s_addr=inet_addr(address);							
+
     int rc;											
     rc = connect(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));						
 
     if(rc==SOCKET_ERROR)
     {
         error("Connect failed");
-        exit(1);
+        //exit(1);
     }
     else
     {
         cout<<"Connected...\n";
     }	
-}
 
+}
+/*
 void client::login(){
     int rc;
     do{
         cout<<"Geben Sie Ihren Usernamen ein:\n";
         fflush(stdin);
-		fgets(sendBuffer, 140, stdin);
-		size_t p=sizeof(sendBuffer);
-		sendBuffer[p-1]='\0';
-
+        fgets(sendBuffer, 140, stdin);
+        size_t p=sizeof(sendBuffer);
+        sendBuffer[p-1]='\0';
 
         rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
         if(rc==SOCKET_ERROR){
@@ -101,38 +84,37 @@ void client::login(){
         receive();
     }while(strcmp(receiveBuffer,"Already logged in")==0);
 }	
-
+*/
 void client::closeClient(){
     closesocket(clientSocket);
-    exit(0);
 }
-
+/*
 void client::conversation(){
 cout<<"Geben Sie eine Message ein:\n";
         fflush(stdin);
-		fgets(sendBuffer, 140, stdin);
-		size_t p=sizeof(sendBuffer);
-		sendBuffer[p-1]='\0';
+        fgets(sendBuffer, 140, stdin);
+        size_t p=sizeof(sendBuffer);
+        sendBuffer[p-1]='\0';
     sending(sendBuffer);
-	pthread_t pid;
-	 int rc;
-	 rc=pthread_create(&pid ,NULL, &client::handleThread, this);
    // receive();
 }
-
-void client::receive(){
+*/
+const char* client::receive(){
     //long tid;
     //tid = (long)threadid;
     int bytes;
     bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
     receiveBuffer[bytes] = '\0';	
     cout<<receiveBuffer<<"\n";	
+
+    return receiveBuffer;
 }
 
-void client::sending(char* sendBuf){
+void client::sending(const char* sendBuf){
     int rc;
     memcpy(sendBuffer, sendBuf, strlen(sendBuf));
     sendBuffer[strlen(sendBuf)] = '\0';
+    
     rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
     if(rc==SOCKET_ERROR){
         error("Sending failed");
@@ -141,14 +123,14 @@ void client::sending(char* sendBuf){
         cout << sendBuf << " (gesendet)\n";
     }
 }
-
+/*
 void* client::handleThread(void *arg){
     //while oder ähnliches
     client* clientThread = static_cast<client*>(arg);
-	pthread_detach(pthread_self());
-
+    pthread_detach(pthread_self());
     while(true){
         clientThread->receive();
     }
     return (NULL);
 }
+*/
