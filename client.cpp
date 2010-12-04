@@ -24,8 +24,6 @@ void client::run(){
 
 }
 
-//starts Winsock version 2.0, WSADATA is a 
-//struct containing info about win socket implementation
 void client::startWinSock()									
 {
 #ifdef WIN32
