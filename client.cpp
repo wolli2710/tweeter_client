@@ -67,11 +67,6 @@ void client::closeClient(){
 const char* client::receive(bool* successful){
     int bytes;
     bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
-    if(bytes < 0) {
-        error("Receive failed");
-        *successful = false;
-    }
-    else *successful = true;
     receiveBuffer[bytes] = '\0';	
 
     return receiveBuffer;

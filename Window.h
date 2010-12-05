@@ -52,10 +52,9 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     static void* handleThread(void *arg);
-    void receivingFromServer();
     void addToBox(const char* text,TextEditor* box);
     bool runFunction(int function, const char* text);
-    void handleMessage(const char* text);
+    void handleMessage();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -69,7 +68,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
     client tweety;
-    bool connected;  
+    static bool connected;  
     //[/UserVariables]
 
     //==============================================================================
@@ -81,6 +80,7 @@ private:
     TextEditor* messageTextBox;
     TextEditor* ipTextBox;
     TextEditor* statusTextBox;
+    ListBox* testliste;
     //==============================================================================
     // (prevent copy constructor and operator= being generated..)
     Window (const Window&);
