@@ -55,6 +55,7 @@ public:
     void addToBox(const char* text,TextEditor* box);
     bool runFunction(int function, const char* text);
     void handleMessage();
+    void convertTimestamp(String* time);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -80,7 +81,6 @@ private:
     TextEditor* messageTextBox;
     TextEditor* ipTextBox;
     TextEditor* statusTextBox;
-    ListBox* testliste;
     //==============================================================================
     // (prevent copy constructor and operator= being generated..)
     Window (const Window&);
