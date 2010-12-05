@@ -7,7 +7,7 @@
 #pragma comment(lib, "ws2_32.lib")
 #include <pthread.h>
 #pragma comment(lib, "pthreadVC2.lib")
-#include <string.h>
+#include <string>
 #include <iostream>
 #endif
 

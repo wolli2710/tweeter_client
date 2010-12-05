@@ -27,6 +27,12 @@
 #include "juce.h"
 //[/Headers]
 
+#define RUN 0
+#define CONNECT 1
+#define SEND 2
+#define RECEIVE 3
+
+
 //==============================================================================
 /**
                                                                     //[Comments]
@@ -47,6 +53,9 @@ public:
     //[UserMethods]     -- You can add your own custom methods in this section.
     static void* handleThread(void *arg);
     void receivingFromServer();
+    void addToBox(const char* text,TextEditor* box);
+    bool runFunction(int function, const char* text);
+    void handleMessage(const char* text);
     //[/UserMethods]
 
     void paint (Graphics& g);

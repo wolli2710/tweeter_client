@@ -103,30 +103,36 @@ Window::Window ()
     //[Constructor] You can add your own custom stuff here..
 
     connected = false;
-    tweety.run();
 
     //[/Constructor]
 }
 
+void Window::addToBox(const char* text,TextEditor* box){
+    String s = box->getText();
+    s = text + s;
+    box->setText(s);
+}
 
+
+/*
 void Window::receivingFromServer(){
     String s = messageTextBox->getText();
-    //String s2(tweety.receive());
     s = tweety.receive()+ String("\n") +s;
    
     messageTextBox->setText(s.toCString());
-}
+}*/
 
 Window::~Window()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
     //[/Destructor_pre]
-
     deleteAndZero (sendingTextBox);
     deleteAndZero (sendingButton);
     deleteAndZero (followButton);
     deleteAndZero (portTextBox);
     deleteAndZero (messageTextBox);
+    deleteAndZero (statusTextBox);
+    deleteAndZero (ipTextBox);
 
     //[Destructor]. You can add your own custom destruction code here..
     //[/Destructor]
@@ -157,64 +163,100 @@ void Window::resized()
     messageTextBox->setBounds (10, 300, 450, 400);  
 }
 
-
 void Window::buttonClicked (Button* buttonThatWasClicked)
 {
     if (buttonThatWasClicked == sendingButton)
     {
-        //[UserButtonCode_sendingButton] -- add your button handler code here..
-        tweety.sending(sendingTextBox->getText().toCString());
-        sendingTextBox->setText("");
-        //[/UserButtonCode_sendingButton]
+        if(!sendingTextBox->isEmpty()){
+            tweety.sending(sendingTextBox->getText().toCString());
+            sendingTextBox->setText("");
+        }
+        else{
+            addToBox("The sending Text is empty",statusTextBox);
+        }
     }
     else if (buttonThatWasClicked == followButton)
     {
-        //[UserButtonCode_followButton] -- add your button handler code here..
-        string test = "f ";
-        test.append(sendingTextBox->getText().toCString());
-        tweety.sending(test.c_str());
-        //[/UserButtonCode_followButton]
+        if(!sendingTextBox->isEmpty()){
+            string sender = "f ";
+            sender.append(sendingTextBox->getText().toCString());
+            runFunction(SEND,);
+            sendingTextBox->setText("");
+        }
+        else{
+            addToBox("The sending Text is empty",statusTextBox);
+        }
+
     }
     else if (buttonThatWasClicked == connectButton)
     {
-        //[UserButtonCode_followButton] -- add your button handler code here..
-        
+        bool success = runFunction(RUN,"");
         if(connected){
             tweety.closeClient();
             connectButton->setButtonText("Connect");
-            
         }
         else{
             connectButton->setButtonText("Disconnect");
-            int port = portTextBox->getText().getIntValue();
-            tweety.connection(port, ipTextBox->getText().toCString());
-
-            pthread_t pid;
-            pthread_create(&pid ,NULL, &handleThread, this);
+            success = runFunction(CONNECT,"");
         }
-        connected = !connected;       
+        if(success)connected = !connected;       
         
         sendingButton->setVisible(connected);
         followButton->setVisible(connected);
-
-        //pthread_create(&pid ,NULL, &Window::handleThread, &tweety);
-        //[/UserButtonCode_followButton]
     }
 
     //[UserbuttonClicked_Post]
     //[/UserbuttonClicked_Post]
 }
 
+bool Window::runFunction(int function, const char* text){
+    bool success;
+    switch(function){
+        case RUN:
+            success = tweety.run();
+            break;
+        case CONNECT:
+            int port = portTextBox->getText().getIntValue();
+            success = tweety.connection(port, ipTextBox->getText().toCString());                
+            if(success){
+                addToBox("Connected with Server",statusTextBox);
+                addToBox("Send a Tweetername to Login",statusTextBox);
+                pthread_t pid;
+                pthread_create(&pid ,NULL, &handleThread, this);                
+            }
+            break;
+        case SEND:
+            success = tweety.sending(text);
+            if(success)addToBox("Message sended",statusTextBox);
+            break;
+        case RECEIVE:
+            string received = tweety.receive(&success); 
+            if(success) handleMessage(received);
+            break;
+    }
+    if(!success){
+        addToBox(tweety.getError(),statusTextBox);
+    }
+}
+
+void Window::handleMessage(const char* text){
+    String message = text;
+    if(message.startsWithChar('m')){
+        //message.substring(1);
+         string t = message.substring(1,message.indexOfChar(';'));
+         addToBox(t,messageTextBox); 
+    }
+
+}
+
 void* Window::handleThread(void *arg){
     Window* thread = static_cast<Window*>(arg);
     pthread_detach(pthread_self());
-    while(true){
-        thread->receivingFromServer();        
+    while(connected){
+        thread->runFunction(RECEIVE,"");
     }
     return (NULL);
 }
-
-
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 //[/MiscUserCode]

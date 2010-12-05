@@ -7,45 +7,39 @@ client::client()
 
 client::~client()
 {
-
 }   
-void client::run(){
 
-#ifdef WIN32
+bool client::run(){
     startWinSock();
-#endif
-
     clientSocket = socket( AF_INET, SOCK_STREAM, 0 );
-
-    if(clientSocket == INVALID_SOCKET){
+    if(clientSocket < 0){
         error("Socket U fail");
-        exit(1);
+        return false;
     }
-
+    return true;
 }
 
-void client::startWinSock()									
+const char* client::getError(){
+    return errorMessage;
+}
+
+bool client::startWinSock()									
 {
-#ifdef WIN32
     WORD wVersionRequested = MAKEWORD(2,2);
     WSADATA wsaData;
     if(WSAStartup(wVersionRequested, &wsaData)!=0){
-        printf("WinSocket not available");
-        exit(1);
+        memcpy(errorMessage, "WinSocket not available", sizeof("WinSocket not available"));
+        return false;
     }
-#endif
+    return true;
 }
 
 //Error Handling function which prints a individual string with the errormessage
-void client::error(char* string){
-    #ifndef WIN32
-        cout << endl << perror(string) << endl;
-    #else 
-        cout << endl << string << " " << WSAGetLastError() << endl;
-    #endif
+void client::error(string string){
+        sprintf(errorMessage, "%s Error:%d\n",string, WSAGetLastError());
 }
 
-void client::connection(int port, const char* address){
+bool client::connection(int port, const char* address){
     memset(&addr, 0, sizeof(SOCKADDR_IN));										
     addr.sin_family=AF_INET;												
     addr.sin_port=htons(port);												
@@ -54,81 +48,46 @@ void client::connection(int port, const char* address){
     int rc;											
     rc = connect(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));						
 
-    if(rc==SOCKET_ERROR)
+    if(rc < 0)
     {
         error("Connect failed");
-        //exit(1);
+        return false;
     }
     else
     {
         cout<<"Connected...\n";
-    }	
-
+        return true;
+    }
 }
-/*
-void client::login(){
-    int rc;
-    do{
-        cout<<"Geben Sie Ihren Usernamen ein:\n";
-        fflush(stdin);
-        fgets(sendBuffer, 140, stdin);
-        size_t p=sizeof(sendBuffer);
-        sendBuffer[p-1]='\0';
 
-        rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
-        if(rc==SOCKET_ERROR){
-            error("login failed\n");
-        }
-        receive();
-    }while(strcmp(receiveBuffer,"Already logged in")==0);
-}	
-*/
 void client::closeClient(){
     closesocket(clientSocket);
 }
-/*
-void client::conversation(){
-cout<<"Geben Sie eine Message ein:\n";
-        fflush(stdin);
-        fgets(sendBuffer, 140, stdin);
-        size_t p=sizeof(sendBuffer);
-        sendBuffer[p-1]='\0';
-    sending(sendBuffer);
-   // receive();
-}
-*/
-const char* client::receive(){
-    //long tid;
-    //tid = (long)threadid;
+
+const char* client::receive(bool* successful){
     int bytes;
     bytes = recv(clientSocket, receiveBuffer, sizeof(receiveBuffer), 0);
+    if(bytes < 0) {
+        error("Receive failed");
+        *successful = false;
+    }
+    else *successful = true;
     receiveBuffer[bytes] = '\0';	
-    cout<<receiveBuffer<<"\n";	
 
     return receiveBuffer;
 }
 
-void client::sending(const char* sendBuf){
+bool client::sending(const char* sendBuf){
     int rc;
     memcpy(sendBuffer, sendBuf, strlen(sendBuf));
     sendBuffer[strlen(sendBuf)] = '\0';
     
     rc = send(clientSocket, sendBuffer, sizeof(sendBuffer), 0);
-    if(rc==SOCKET_ERROR){
+    if(rc < 0){
         error("Sending failed");
+        return false;
     }
     else{
-        cout << sendBuf << " (gesendet)\n";
+        return true;        
     }
 }
-/*
-void* client::handleThread(void *arg){
-    //while oder ähnliches
-    client* clientThread = static_cast<client*>(arg);
-    pthread_detach(pthread_self());
-    while(true){
-        clientThread->receive();
-    }
-    return (NULL);
-}
-*/

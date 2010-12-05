@@ -24,6 +24,7 @@
 #include <iostream>*/
 #include "includes.h"
 
+
 //#include "message.h"
 //#include "timestamp.h"
 
@@ -33,16 +34,15 @@ class client
 {
     public:
         client();
-        virtual ~client();
-        void connection(int port, const char* address);
-        void conversation();
+        ~client();
+        bool connection(int port, const char* address);
         void closeClient();
-        void login();
-        const char* receive();
-        void sending(const char* sendBuf);
-        void run();
-        void startWinSock();
-        void error(char* string);
+        const char* client::receive(bool* successful);
+        bool sending(const char* sendBuf);
+        bool run();
+        bool startWinSock();
+        void error(string string);
+        const char* getError();
         
         static void* handleThread(void *arg);    
     protected:
@@ -54,12 +54,7 @@ class client
         bool closeConnection;
         char receiveBuffer[BUFFER_SIZE];
         char sendBuffer[BUFFER_SIZE];
-
-       // pthread_t threads[NUM_THREADS];
-        
-
+        char errorMessage[50];
 };
-
-//void *thread(void* arg);
 
 #endif 
